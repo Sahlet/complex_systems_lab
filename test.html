@@ -1,0 +1,61 @@
+<html>
+	<head>
+		<title>Model TEST</title>
+		<script src = "irrigation_canal_model.js"></script>
+		<script>
+			var MVC = {
+				model : null,
+				views : null,
+				controllers : null
+			};
+
+			function onModelLoaded(str) {
+				console.log("hello0");
+				console.log("str = " + str);
+				MVC.model = modelFields();
+				MVC.model.main_node = nodeFunctions.parse(str);
+				console.log(MVC.model.main_node);
+				console.log("hello1");
+			};
+
+			
+			function inputFileOnchange(event) {
+				var file = event.target.files[0];
+				
+				{
+					var reader = new FileReader();
+					reader.onload = function() {
+						onModelLoaded(reader.result);
+					};
+					reader.readAsText(file);
+				}
+
+				console.log("model loaded from file '" + file.name + "'");
+			};
+
+			//------------------------------------------
+
+			// function loadedModelFromFile(path) {
+			// 	var rawFile = new XMLHttpRequest();
+			// 	rawFile.open("GET", path, true);
+			// 	rawFile.onreadystatechange = function () {
+			// 		if(rawFile.readyState === 4 && (rawFile.status === 200 || rawFile.status == 0)) {
+			// 			onModelLoaded(rawFile.responseText);
+			// 		}
+			// 	}
+			// 	rawFile.send(null);
+			// };
+
+			// //"file:///home/sahlet/Documents/5_course/complex_systems_lab/model_stringify_1.JSON"
+			// //"model_stringify_1.JSON"
+			// //chrome.exe --allow-file-access-from-files
+			// loadedModelFromFile("model_stringify_1.JSON");
+		</script>
+	</head>
+	<body>
+		<input
+			id = "input_file" type = "file",
+			onchange = "inputFileOnchange(event);"
+		/>
+	</body>
+</html>
