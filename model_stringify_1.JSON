@@ -1,3 +1,14 @@
 {
-"text":"hello"
+"height" : "2.0",
+"length" : "100.0",
+"width" : "3.0",
+
+"enginePower" : "1.0",
+
+"waterLevel" : "0.0",
+"waterLevelLimits" : {
+	"lower" : "0.4",
+	"higher" : "0.9"
+},
+"children":[{"lalka" : 1}, {"lilka" : 2}]
 }
