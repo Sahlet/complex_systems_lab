@@ -7,7 +7,7 @@ function Model(model, parent_ref, content_ref) {
 		try {
 			model = JSON.parse(model);
 		} catch (e) {
-			console.log(e);
+			console.error(e);
 		}
 	}
 
@@ -27,16 +27,14 @@ function Model(model, parent_ref, content_ref) {
 		this.height = 2.0;
 		this.length = 100.0;
 		this.width = 3.0;
-
 		this.enginePower = 1.0;
-
-		this.waterLevel = 0.0; //coefficient of height
 		this.waterLevelLimits = {
 			lower : 0.4,
 			higher : 0.9
 		};
+		this.waterLevel = 0.0; //coefficient of height
 
-		this.children = [], //list of nodes
+		this.children = []; //list of nodes
 	}
 
 	if (parent_ref) {
@@ -49,6 +47,33 @@ function Model(model, parent_ref, content_ref) {
 
 	Object.defineProperty(this, "paret", { enumerable : false });
 	Object.defineProperty(this, "content", { enumerable : false });
+
+	Object.defineProperty(this, "waterLevelOnChange", {
+		value : new ObservableSubject(),
+		writable : false,
+		enumerable : false,
+		configurable : false
+	});
+
+	Object.defineProperty(this, "_waterLevel_", {
+		value : this.waterLevel,
+		writable : true,
+		enumerable : false,
+		configurable : false
+	});
+	
+	Object.defineProperty(this, "waterLevel", {
+		get : function() { return this._waterLevel_; },
+		set : function(value) {
+			var clamp_value = Math.max(this.waterLevelLimits.lower, Math.min(this.waterLevelLimits.higher, value));
+			if (this._waterLevel_ !== clamp_value) {
+				this._waterLevel_ = clamp_value;
+				this.waterLevelOnChange.notify(this._waterLevel_);
+			}
+		},
+		enumerable : true,
+		configurable : false
+	});
 };
 
 Model.prototype.think = function (deltaTime /*in ms*/) {

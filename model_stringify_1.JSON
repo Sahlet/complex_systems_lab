@@ -1,14 +1,40 @@
 {
-"height" : "2.0",
-"length" : "100.0",
-"width" : "3.0",
+	"height" : 1.5,
+	"length" : 8000,
+	"width" : 10,
+	"enginePower" : 1,
+	"waterLevelLimits" : {
+		"lower" : 0.4,
+		"higher" : 0.9
+	},
+	"waterLevel" : 0,
+	
+	"children":[
+		{
+			"height" : 1,
+			"length" : 2530,
+			"width" : 3,
+			"enginePower" : 1,
+			"waterLevelLimits" : {
+				"lower" : 0.2,
+				"higher" : 0.8
+			},
+			"waterLevel" : 0,
 
-"enginePower" : "1.0",
+			"children":[]
+		},
+		{
+			"height" : 1.1,
+			"length" : "1090",
+			"width" : 2.7,
+			"enginePower" : 1,
+			"waterLevelLimits" : {
+				"lower" : 0.25,
+				"higher" : 0.9
+			},
+			"waterLevel" : 0,
 
-"waterLevel" : "0.0",
-"waterLevelLimits" : {
-	"lower" : "0.4",
-	"higher" : "0.9"
-},
-"children":[{"lalka" : 1}, {"lilka" : 2}]
+			"children":[]
+		}
+	]
 }

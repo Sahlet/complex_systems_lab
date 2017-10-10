@@ -1,142 +1,21 @@
-<!-- <!doctype html>
-<html>
-  <body>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
-    <script>
-// <![CDATA[
-var OMVC = {};
-
-OMVC.makeObservableSubject = function () {
-    var observers = [];
-    var addObserver = function (o) {
-        if (typeof o !== 'function') {
-            throw new Error('observer must be a function');
-        }
-        for (var i = 0, ilen = observers.length; i < ilen; i += 1) {
-            var observer = observers[i];
-            if (observer === o) {
-                throw new Error('observer already in the list');
-            }
-        }
-        observers.push(o);
-    };
-    var removeObserver = function (o) {
-        for (var i = 0, ilen = observers.length; i < ilen; i += 1) {
-            var observer = observers[i];
-            if (observer === o) {
-                observers.splice(i, 1);
-                return;
-            }
-        }
-        throw new Error('could not find observer in list of observers');
-    };
-    var notifyObservers = function (data) {
-        // Make a copy of observer list in case the list
-        // is mutated during the notifications.
-        var observersSnapshot = observers.slice(0);
-        for (var i = 0, ilen = observersSnapshot.length; i < ilen; i += 1) {
-            observersSnapshot[i](data);
-        }
-    };
-    return {
-        addObserver: addObserver,
-        removeObserver: removeObserver,
-        notifyObservers: notifyObservers,
-        notify: notifyObservers
-    };
-};
-
-
-OMVC.Model = function () {
-    var that = this;
-    var items = [];
-    this.modelChangedSubject = OMVC.makeObservableSubject();
-    this.addItem = function (value) {
-        if (!value) {
-            return;
-        }
-        items.push(value);
-        that.modelChangedSubject.notifyObservers();
-    };
-    this.removeCurrentItem = function () {
-        if (that.selectedIndex === -1) {
-             return;
-        }
-        items.splice(that.selectedIndex, 1);
-        that.modelChangedSubject.notifyObservers();
-    };
-    this.getItems = function () {
-        return items;
-    };
-    this.selectedIndex = -1;
-    this.getSelectedIndex = function () {
-        return that.selectedIndex;
-    }
-    this.setSelectedIndex = function (value) {
-        that.selectedIndex = value;
-        that.modelChangedSubject.notifyObservers();
-    }
-};
-
-OMVC.View = function (model, rootObject) {
-    var that = this;
-    that.select = $('<select/>').appendTo(rootObject);
-    that.select.attr('size', '4');
-    that.buttonAdd = $('<button>+</button>').appendTo(rootObject).height(20);
-    that.buttonRemove = $('<button>-</button>').appendTo(rootObject).height(20);
-    model.modelChangedSubject.addObserver(function () {
-        var items = model.getItems();
-        var innerHTML = '';
-        for (var i = 0; i<items.length; i += 1) {
-             innerHTML += "<option>"+items[i]+"</option>";
-        }
-        that.select.html(innerHTML);
-    });
-};
-
-OMVC.Controller = function (model, view) {
-    view.buttonAdd.bind('click', function () {
-        model.addItem(prompt('addvalue'));
-    });
-    view.buttonRemove.bind('click', function () {
-        model.removeCurrentItem();
-    });
-    view.select.bind('click', function () {
-       model.setSelectedIndex(view.select[0].selectedIndex);
-    });
-};        
-
-$(document).ready(function () {
-    var model = new OMVC.Model();
-    var view = new OMVC.View(model, $('<div/>').appendTo($("body")));
-    var controller = new OMVC.Controller(model, view);
-});
-// ]]>
-    </script>
-  </body>
-</html> -->
-
 <html>
 	<head>
 		<title>Model TEST</title>
 		<script src = "irrigation_canal_model.js"></script>
+		<script src = "ObservableSubject.js"></script>
 		<script>
-			var MVC = {
-				model : null,
-				views : null,
-				controllers : null
-			};
+			var OMVC = {};
 
 			function onModelLoaded(str) {
-				console.log("in onModelLoaded() : str = " + str);
-				MVC.model = new Model(str);
-				console.log(MVC.model);
-				console.log("model in JSON firmat = '" + JSON.stringify(MVC.model) + "'");
+				OMVC.model = new Model(str);
+				//console.log(OMVC.model);
 			};
 
 			
 			function inputFileOnchange(event) {
 				var file = event.target.files[0];
+
+				if (!file) return;
 				
 				{
 					var reader = new FileReader();
@@ -166,12 +45,46 @@ $(document).ready(function () {
 			// //"model_stringify_1.JSON"
 			// //chrome.exe --allow-file-access-from-files
 			// loadedModelFromFile("model_stringify_1.JSON");
+
+			// Function to download data to a file
+
+			//------------------------------------------
+
+			function saveModel() {
+				var default_filename = "model_stringify.JSON";
+
+				var blob = new Blob([JSON.stringify(OMVC.model)], {type : "application/json"});
+				if (window.navigator.msSaveOrOpenBlob) { // IE10+
+					window.navigator.msSaveOrOpenBlob(blob, default_filename);
+				} else { // Others
+					var a = document.createElement("a");
+					var url = URL.createObjectURL(blob);
+					a.href = url;
+					a.download = default_filename;
+					document.body.appendChild(a);
+					a.click();
+					
+					setTimeout(function() {
+						document.body.removeChild(a);
+						window.URL.revokeObjectURL(url);
+					}, 0);
+				}
+			}
 		</script>
 	</head>
 	<body>
+		<button for = "input_file", onclick = "document.getElementById('input_file').click()">
+			Load model
+		</button>
 		<input
 			id = "input_file" type = "file",
-			onchange = "inputFileOnchange(event);"
+			onchange = "inputFileOnchange(event);",
+			style = "visibility : hidden;"
 		/>
+		<br>
+		<br>
+		<button id = "save_model", onclick = "saveModel()">
+			Save model
+		</button>
 	</body>
 </html>
