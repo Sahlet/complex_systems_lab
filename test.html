@@ -2,7 +2,7 @@
 	<head>
 		<title>Model TEST</title>
 		<script src = "irrigation_canal_model.js"></script>
-		<script src = "ObservableSubject.js"></script>
+		<script src = "my_lib.js"></script>
 		<script>
 			var OMVC = {};
 
@@ -25,7 +25,9 @@
 					reader.readAsText(file);
 				}
 
-				console.log("model loaded from file '" + file.name + "'");
+				var message = "model loaded from file '" + file.name + "'";
+				alert(message);
+				console.log(message);
 			};
 
 			//------------------------------------------
@@ -78,9 +80,13 @@
 		</button>
 		<input
 			id = "input_file" type = "file",
+			accept = ".JSON",
 			onchange = "inputFileOnchange(event);",
 			style = "visibility : hidden;"
 		/>
+		<br>
+		<br>
+		If you want change model parameters (not only waterLevel), you can use some editor (you shold create it).
 		<br>
 		<br>
 		<button id = "save_model", onclick = "saveModel()">

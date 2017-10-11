@@ -54,12 +54,12 @@ ObservableSubject.prototype.removeObserver = function (o) {
 	}
 };
 
-ObservableSubject.prototype.notify = function (data) {
+ObservableSubject.prototype.notify = function () {
 	var that = this;
 	this.executing = true;
 	this.observers.forEach(function(o) {
 		if (!that.observersBufferToDel.has(o)) {
-			o(data);
+			o.call(null, arguments);
 		}
 	});
 	this.executing = false;
@@ -68,6 +68,12 @@ ObservableSubject.prototype.notify = function (data) {
 	});
 	this.actions_queue = [];
 };
+
+//-------------------------------------------------------
+
+function classof(obj) {
+	return Object.prototype.toString.call(obj).slice(8, -1);
+}
 
 //-------------------------------------------------------
 ;
