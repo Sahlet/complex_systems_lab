@@ -2,21 +2,25 @@
 'use strict' //strict mode
 //-------------------------------------------------------
 
-var default_model = {
-	climb : 1, // in m
-	height : 2, // in m
-	length : 100, // in m
-	width : 3, // in m
-	enginePower : 1, // in W
-	leak : 0.01, // in m/sec
-	waterLevelLimits : {
-		lower : 0.4,
-		higher : 0.9
-	},
-	waterLevel : 0, //coefficient of height
+function createDefaultModel() {
+	var default_model = {
+		climb : 1, // in m
+		height : 2, // in m
+		length : 100, // in m
+		width : 3, // in m
+		enginePower : 1, // in W
+		leak : 0.01, // in m/sec
+		waterLevelLimits : {
+			lower : 0.4,
+			higher : 0.9
+		},
+		waterLevel : 0, //coefficient of height
 
-	children : [], //list of nodes
-};
+		children : [], //list of nodes
+	};
+
+	return default_model;
+}
 
 function Model(model, parent_ref, content_ref) {
 	if ('object' !== typeof model) {
@@ -30,7 +34,7 @@ function Model(model, parent_ref, content_ref) {
 //------------------------------
 
 	if (!model || ("object" !== typeof model)) {
-		model = default_model;
+		model = createDefaultModel();
 	}
 
 	for (prop_name in model) {
@@ -81,11 +85,8 @@ function Model(model, parent_ref, content_ref) {
 	Object.defineProperty(this, "parent", {
 		get : function() { return this._parent_; },
 		set : function(value) {
-			if (this.parent === value) { return; }
-			if (value !== null && "Model" != classof(value)) {
-				console.warn("\"Model\" != classof(value)");
-			}
-			this.parent = value;
+			if (this._parent_ === value) { return; }
+			this._parent_ = value;
 			this.updateEngineWorks();
 		},
 		enumerable : false,
@@ -93,9 +94,9 @@ function Model(model, parent_ref, content_ref) {
 	});
 
 	if (parent_ref) {
-		this.paret = parent_ref;
+		this.parent = parent_ref;
 	} else {
-		this.paret = null;
+		this.parent = null;
 	}
 
 //------------------------------
