@@ -72,6 +72,40 @@
 					}, 0);
 				}
 			}
+
+			function waterLevelOnChange(waterLevel, Model) {
+				var currentTonel = Model.content;
+				currentTonel.changeWaterLevel(waterLevel);
+			}
+
+			function engineWorksOnChange(engineWorks, Model) {
+				var currentTonel = Model.content;
+				currentTonel.changeEngineWorks(engineWorks);
+			}
+
+			function addObservers(model) {
+				if(model == null) { return; }
+
+				var tonel = /* new Tonel() */ {
+					changeWaterLevel : function(waterLevel) {}
+					changeEngineWorks : function(engineWorks) {}
+					addChildTonel : function(childTonel) {}
+				};
+
+				model.content = tonel;
+
+				if (model.parent != null) {
+					model.parent.content.addChildTonel(tonel);
+				}
+
+				model.waterLevelOnChange.addObserver(waterLevelOnChange);
+				model.engineWorksOnChange.addObserver(engineWorksOnChange);
+
+				for(child in model.children) {
+					addObservers(child);
+				}
+			}
+
 		</script>
 	</head>
 	<body>
