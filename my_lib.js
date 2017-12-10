@@ -62,10 +62,11 @@ ObservableSubject.prototype.removeObserver = function (o) {
 
 ObservableSubject.prototype.notify = function () {
 	var that = this;
+	var args = arguments;
 	this.executing = true;
 	this.observers.forEach(function(o) {
 		if (!that.observersBufferToDel.has(o)) {
-			o.call(null, arguments);
+			o.apply(null, args);
 		}
 	});
 	this.executing = false;

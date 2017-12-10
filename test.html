@@ -11,11 +11,88 @@
 		<script src = "irrigation_canal_model.js"></script>
 		<script src = "my_lib.js"></script>
 		<script>
-			var OMVC = {};
+
+			//------------------------------------------
+
+			var mute = true;
+
+			function waterLevelOnChange(waterLevel, Model) {
+				var currentTonel = Model.content;
+				currentTonel.changeWaterLevel(waterLevel);
+			}
+
+			function engineWorksOnChange(engineWorks, Model) {
+				var currentTonel = Model.content;
+				currentTonel.changeEngineWorks(engineWorks);
+			}
+
+			function addObservers(model) {
+				if(model == null) { return; }
+
+				var tonel = /* new Tonel() */ {
+					engineWorks : false,
+					changeWaterLevel : function(waterLevel) {
+						if (mute) { return; }
+
+						if (this.engineWorks) {
+							console.log("%c" + waterLevel, 'color: #ff0000');
+						} else {
+							console.log(waterLevel);
+						}
+					},
+					changeEngineWorks : function(engineWorks) {
+						this.engineWorks = engineWorks;
+					},
+					addChildTonel : function(childTonel) {}
+				};
+
+				model.content = tonel;
+
+				if (model.parent != null) {
+					model.parent.content.addChildTonel(tonel);
+				}
+
+				model.waterLevelOnChange.addObserver(waterLevelOnChange);
+				model.engineWorksOnChange.addObserver(engineWorksOnChange);
+
+				for (index in model.children) {
+					addObservers(model.children[index]);
+				}
+			}
+
+			//------------------------------------------
+
+			var OMVC = {
+				model : null
+			};
+
+			var actionCycleCallCount = 0;
+			var delay = 1000; // ms
+			var writeInterval = 1000; // ms
+
+			function actionCycle() {
+				if (actionCycleCallCount == 0) {
+					mute = false;
+					console.log("____________________");
+				} else {
+					mute = true;
+				}
+
+				if (writeInterval > delay) {
+					if (++actionCycleCallCount % (writeInterval/delay) == 0) {
+						actionCycleCallCount = 0;
+					}
+				}
+				
+				OMVC.model.think(delay);
+				setTimeout(actionCycle, delay);
+			}
 
 			function onModelLoaded(str) {
 				OMVC.model = new Model(str);
 				//console.log(OMVC.model);
+				addObservers(OMVC.model);
+				actionCycle();
 			};
 
 			
@@ -23,18 +100,18 @@
 				var file = event.target.files[0];
 
 				if (!file) return;
+
+				var message = "model loaded from file '" + file.name + "'";
 				
 				{
 					var reader = new FileReader();
 					reader.onload = function() {
 						onModelLoaded(reader.result);
+						console.log(message);
+						alert(message);
 					};
 					reader.readAsText(file);
 				}
-
-				var message = "model loaded from file '" + file.name + "'";
-				console.log(message);
-				alert(message);
 			};
 
 			//------------------------------------------
@@ -77,41 +154,6 @@
 						document.body.removeChild(a);
 						window.URL.revokeObjectURL(url);
 					}, 0);
-				}
-			}
-
-			//------------------------------------------
-
-			function waterLevelOnChange(waterLevel, Model) {
-				var currentTonel = Model.content;
-				currentTonel.changeWaterLevel(waterLevel);
-			}
-
-			function engineWorksOnChange(engineWorks, Model) {
-				var currentTonel = Model.content;
-				currentTonel.changeEngineWorks(engineWorks);
-			}
-
-			function addObservers(model) {
-				if(model == null) { return; }
-
-				var tonel = /* new Tonel() */ {
-					changeWaterLevel : function(waterLevel) {}
-					changeEngineWorks : function(engineWorks) {}
-					addChildTonel : function(childTonel) {}
-				};
-
-				model.content = tonel;
-
-				if (model.parent != null) {
-					model.parent.content.addChildTonel(tonel);
-				}
-
-				model.waterLevelOnChange.addObserver(waterLevelOnChange);
-				model.engineWorksOnChange.addObserver(engineWorksOnChange);
-
-				for(child in model.children) {
-					addObservers(child);
 				}
 			}
 

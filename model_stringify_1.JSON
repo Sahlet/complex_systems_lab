@@ -3,7 +3,7 @@
 	"height" : 1.5,
 	"length" : 8000,
 	"width" : 10,
-	"enginePower" : 1,
+	"enginePower" : 100000,
 	"leak" : 0.01,
 	"waterLevelLimits" : {
 		"lower" : 0.4,
@@ -17,7 +17,7 @@
 			"height" : 1,
 			"length" : 2530,
 			"width" : 3,
-			"enginePower" : 1,
+			"enginePower" : 10000,
 			"leak" : 0.01,
 			"waterLevelLimits" : {
 				"lower" : 0.2,
@@ -30,9 +30,9 @@
 		{
 			"climb" : 1,
 			"height" : 1.1,
-			"length" : "1090",
+			"length" : 1090,
 			"width" : 2.7,
-			"enginePower" : 1,
+			"enginePower" : 1000,
 			"leak" : 0.01,
 			"waterLevelLimits" : {
 				"lower" : 0.25,

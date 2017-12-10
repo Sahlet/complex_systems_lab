@@ -136,7 +136,7 @@ function Model(model, parent_ref, content_ref) {
 			var clamp_value = Math.max(0, Math.min(1, value));
 			this._waterLevel_ = clamp_value;
 			this.waterLevelOnChange.notify(this._waterLevel_, this);
-			updateEngineWorks();
+			this.updateEngineWorks();
 		},
 		enumerable : true,
 		configurable : false
@@ -173,7 +173,7 @@ Model.prototype.getVolume = function () {
 //------------------------------
 
 Model.prototype.updateEngineWorks = function () {
-	this.engineWorks = (this.parent.waterLevel < this.waterLevelLimits.higher) && (!this.parent || this.parent.waterLevel > 0);
+	this.engineWorks = (this.waterLevel < this.waterLevelLimits.higher) && (!this.parent || this.parent.waterLevel > 0);
 };
 
 //------------------------------
@@ -186,7 +186,7 @@ Model.prototype.think = function (deltaTime /*in ms*/) {
 		var g = 10; // acceleration
 		var h = 
 			(this.parent ? this.parent.height * (1 - this.parent.counting_waterLevel) : 0) +
-			this.climb + cur_waterLevel * height;
+			this.climb + this.counting_waterLevel * this.height;
 
 		//enginePower = mass*g*h/deltaTime_in_sec
 
@@ -195,18 +195,20 @@ Model.prototype.think = function (deltaTime /*in ms*/) {
 		if (this.parent) {
 			var parent_mass = this.parent.counting_waterLevel * this.parent.getVolume();
 			mass = Math.min(mass, parent_mass);
+			if (mass > 0) {
+				this.parent.counting_waterLevel -= mass / this.parent.getVolume();
+				if (this.parent.counting_waterLevel < 0) {
+					this.parent.counting_waterLevel = 0;
+				}
+			}
 		}
 
 		if (mass > 0) {
 			this.counting_waterLevel += mass / this.getVolume();
-			this.parent.counting_waterLevel -= mass / this.parent.getVolume();
-			if (this.parent.counting_waterLevel < 0) {
-				this.parent.counting_waterLevel = 0;
-			}
 		}
 	}
 
-	children.forEach(function(value) {
+	this.children.forEach(function(value) {
 		value.think(deltaTime);
 	});
 
