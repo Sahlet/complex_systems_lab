@@ -67,10 +67,11 @@
 			};
 
 			var actionCycleCallCount = 0;
-			var delay = 1000; // ms
-			var writeInterval = 1000; // ms
 
 			function actionCycle() {
+				var delay = 1000; // ms
+				var writeInterval = 1000; // ms
+
 				if (actionCycleCallCount == 0) {
 					mute = false;
 					console.log("____________________");
@@ -88,11 +89,114 @@
 				setTimeout(actionCycle, delay);
 			}
 
+			function test() {
+				addObservers(OMVC.model);
+				actionCycle();
+			}
+
+			function createTable(model) {
+				var table = {};
+
+				function waterLevelOnChange(waterLevel, Model) {
+					var currentTonel = Model.content;
+					currentTonel.changeWaterLevel(waterLevel);
+				}
+
+				function Tonel(name) {
+					this.name = name;
+					table[this.name] = new Array();
+				}
+
+				Tonel.prototype.changeWaterLevel = function(waterLevel) {
+					table[this.name].push(waterLevel);
+				};
+
+				function addObservers(model, name) {
+					if(model == null) { return; }
+
+					if (name == null) {
+						name = "1";
+					}
+
+					var tonel = new Tonel(name);
+
+					model.content = tonel;
+
+					model.waterLevelOnChange.addObserver(waterLevelOnChange);
+
+					var childNumber = 1;
+
+					for (index in model.children) {
+						addObservers(model.children[index], name + "_" + childNumber);
+						childNumber++;
+					}
+				}
+
+				addObservers(model);
+
+				var rowNumber = 100;
+				var delay = 100;
+
+				for (var i = 1; i <= rowNumber; i++) {
+					model.think(delay);
+				}
+
+				var tableStr = "";
+				tableStr += "\"number\"";
+
+				//var first = true;
+
+				for(index in table) {
+					//if (!first) {
+						tableStr += ", ";
+					//}
+					//first = false;
+					
+					tableStr += "\"" + index + "\"";
+				}
+				tableStr += "\n";
+
+				for (var i = 0; i < rowNumber; i++) {
+					tableStr += (i + 1)
+					//first = true;
+					for(index in table) {
+						//if (!first) {
+							tableStr += ", ";
+						//}
+						//first = false;
+						
+						tableStr += table[index][i];
+					}
+					tableStr += "\n";
+				}
+
+				var default_filename = "first_" + rowNumber + "_model_states.csv";
+
+				var blob = new Blob([tableStr], {type : "text/html"});
+				if (window.navigator.msSaveOrOpenBlob) { // IE10+
+					window.navigator.msSaveOrOpenBlob(blob, default_filename);
+				} else { // Others
+					var a = document.createElement("a");
+					var url = URL.createObjectURL(blob);
+					a.href = url;
+					a.download = default_filename;
+					document.body.appendChild(a);
+					a.click();
+					
+					setTimeout(function() {
+						document.body.removeChild(a);
+						window.URL.revokeObjectURL(url);
+					}, 0);
+				}
+			}
+
 			function onModelLoaded(str) {
 				OMVC.model = new Model(str);
 				//console.log(OMVC.model);
-				addObservers(OMVC.model);
-				actionCycle();
+				
+				//test();
+
+				createTable(OMVC.model);
 			};
 
 			
